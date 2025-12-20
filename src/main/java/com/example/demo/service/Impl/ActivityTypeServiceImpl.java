@@ -1,6 +1,5 @@
-package com.example.demo.service.impl;
+package com.example.demo.service.Impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.ActivityCategory;
 import com.example.demo.model.ActivityType;
 import com.example.demo.repository.ActivityCategoryRepository;
@@ -16,7 +15,6 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     private final ActivityTypeRepository typeRepository;
     private final ActivityCategoryRepository categoryRepository;
 
-    // ORDER MATTERS
     public ActivityTypeServiceImpl(ActivityTypeRepository typeRepository,
                                    ActivityCategoryRepository categoryRepository) {
         this.typeRepository = typeRepository;
@@ -26,7 +24,7 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     @Override
     public ActivityType createType(Long categoryId, ActivityType type) {
         ActivityCategory category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("Category not found"));
         type.setCategory(category);
         return typeRepository.save(type);
     }
@@ -34,7 +32,7 @@ public class ActivityTypeServiceImpl implements ActivityTypeService {
     @Override
     public ActivityType getType(Long id) {
         return typeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+                .orElseThrow(() -> new RuntimeException("Activity type not found"));
     }
 
     @Override

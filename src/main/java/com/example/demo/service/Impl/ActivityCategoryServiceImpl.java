@@ -1,7 +1,5 @@
-package com.example.demo.service.impl;
+package com.example.demo.service.Impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
 import com.example.demo.model.ActivityCategory;
 import com.example.demo.repository.ActivityCategoryRepository;
 import com.example.demo.service.ActivityCategoryService;
@@ -14,7 +12,6 @@ public class ActivityCategoryServiceImpl implements ActivityCategoryService {
 
     private final ActivityCategoryRepository categoryRepository;
 
-    // ORDER MATTERS
     public ActivityCategoryServiceImpl(ActivityCategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
@@ -22,7 +19,7 @@ public class ActivityCategoryServiceImpl implements ActivityCategoryService {
     @Override
     public ActivityCategory createCategory(ActivityCategory category) {
         if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
-            throw new ValidationException("Category name must be unique");
+            throw new RuntimeException("Category name must be unique");
         }
         return categoryRepository.save(category);
     }
@@ -30,7 +27,7 @@ public class ActivityCategoryServiceImpl implements ActivityCategoryService {
     @Override
     public ActivityCategory getCategory(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
     @Override

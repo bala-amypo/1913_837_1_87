@@ -1,9 +1,13 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import com.example.demo.model.ActivityLog;
+import com.example.demo.model.ActivityType;
+import com.example.demo.model.EmissionFactor;
+import com.example.demo.model.User;
+import com.example.demo.repository.ActivityLogRepository;
+import com.example.demo.repository.ActivityTypeRepository;
+import com.example.demo.repository.EmissionFactorRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ActivityLogService;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +22,6 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final ActivityTypeRepository typeRepository;
     private final EmissionFactorRepository factorRepository;
 
-    // ORDER MATTERS
     public ActivityLogServiceImpl(ActivityLogRepository logRepository,
                                   UserRepository userRepository,
                                   ActivityTypeRepository typeRepository,
@@ -33,17 +36,17 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     public ActivityLog logActivity(Long userId, Long typeId, ActivityLog log) {
 
         if (log.getActivityDate().isAfter(LocalDate.now())) {
-            throw new ValidationException("cannot be in the future");
+            throw new RuntimeException("cannot be in the future");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         ActivityType type = typeRepository.findById(typeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+                .orElseThrow(() -> new RuntimeException("Activity type not found"));
 
         EmissionFactor factor = factorRepository.findByActivityType_Id(typeId)
-                .orElseThrow(() -> new ValidationException("No emission factor configured"));
+                .orElseThrow(() -> new RuntimeException("No emission factor configured"));
 
         log.setUser(user);
         log.setActivityType(type);
@@ -67,6 +70,6 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     @Override
     public ActivityLog getLog(Long id) {
         return logRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Activity log not found"));
+                .orElseThrow(() -> new RuntimeException("Activity log not found"));
     }
 }
