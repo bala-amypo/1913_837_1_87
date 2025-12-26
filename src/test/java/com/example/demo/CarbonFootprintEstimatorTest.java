@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
  * 7. Security + JWT
  * 8. HQL / criteria-like advanced querying (simulated via repo methods)
  */
- @Listeners(TestResultListener.class)
+@Listeners(TestResultListener.class)
 public class CarbonFootprintEstimatorTest {
 
     @Mock
@@ -54,8 +54,6 @@ public class CarbonFootprintEstimatorTest {
     private EmissionFactorRepository factorRepository;
     @Mock
     private AuthenticationManager authenticationManager;
-    @Mock
-    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -102,8 +100,8 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 4, groups = "servlet")
     public void t04_controllerLikeServletProcessesPostBody() {
-        RegisterRequest req = new RegisterRequest("Test User", "test @example.com", "password123");
-        Assert.assertEquals(req.getEmail(), "test @example.com");
+        RegisterRequest req = new RegisterRequest("Test User", "test@example.com", "password123");
+        Assert.assertEquals(req.getEmail(), "test@example.com");
     }
 
     @Test(priority = 5, groups = "servlet")
@@ -132,8 +130,8 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 10, groups = "crud")
     public void t10_registerUser_success() {
-        User user = new User(null, "User A", "a @example.com", "password123", "USER", LocalDateTime.now());
-        when(userRepository.existsByEmail("a @example.com")).thenReturn(false);
+        User user = new User(null, "User A", "a@example.com", "password123", "USER", LocalDateTime.now());
+        when(userRepository.existsByEmail("a@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer((Answer<User>) invocation -> {
             User u = invocation.getArgument(0);
             u.setId(1L);
@@ -143,14 +141,14 @@ public class CarbonFootprintEstimatorTest {
         User created = userService.registerUser(user);
 
         Assert.assertNotNull(created.getId());
-        Assert.assertEquals(created.getEmail(), "a @example.com");
+        Assert.assertEquals(created.getEmail(), "a@example.com");
         verify(userRepository).save(any(User.class));
     }
 
     @Test(priority = 11, groups = "crud")
     public void t11_registerUser_duplicateEmail() {
-        User user = new User(null, "User A", "a @example.com", "password123", "USER", LocalDateTime.now());
-        when(userRepository.existsByEmail("a @example.com")).thenReturn(true);
+        User user = new User(null, "User A", "a@example.com", "password123", "USER", LocalDateTime.now());
+        when(userRepository.existsByEmail("a@example.com")).thenReturn(true);
 
         try {
             userService.registerUser(user);
@@ -162,7 +160,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 12, groups = "crud")
     public void t12_getUserById_success() {
-        User user = new User(1L, "User A", "a @example.com", "encPass", "USER", LocalDateTime.now());
+        User user = new User(1L, "User A", "a@example.com", "encPass", "USER", LocalDateTime.now());
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         User result = userService.getUser(1L);
@@ -327,7 +325,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 35, groups = "hibernate")
     public void t35_crudSaveUser_viaRepositoryMock() {
-        User user = new User(null, "B", "b @example.com", "password123", "USER", null);
+        User user = new User(null, "B", "b@example.com", "password123", "USER", null);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User u = invocation.getArgument(0);
             u.setId(2L);
@@ -339,16 +337,16 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 36, groups = "hibernate")
     public void t36_repositoryFindByEmail_returnsOptional() {
-        User user = new User(3L, "C", "c @example.com", "pwd", "USER", LocalDateTime.now());
-        when(userRepository.findByEmail("c @example.com")).thenReturn(Optional.of(user));
-        Optional<User> opt = userRepository.findByEmail("c @example.com");
+        User user = new User(3L, "C", "c@example.com", "pwd", "USER", LocalDateTime.now());
+        when(userRepository.findByEmail("c@example.com")).thenReturn(Optional.of(user));
+        Optional<User> opt = userRepository.findByEmail("c@example.com");
         Assert.assertTrue(opt.isPresent());
     }
 
     @Test(priority = 37, groups = "hibernate")
     public void t37_repositoryFindByEmail_empty() {
-        when(userRepository.findByEmail("none @example.com")).thenReturn(Optional.empty());
-        Optional<User> opt = userRepository.findByEmail("none @example.com");
+        when(userRepository.findByEmail("none@example.com")).thenReturn(Optional.empty());
+        Optional<User> opt = userRepository.findByEmail("none@example.com");
         Assert.assertTrue(opt.isEmpty());
     }
 
@@ -365,7 +363,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 41, groups = "jpa")
     public void t41_activityLogHasUserAndType_2NFConcept() {
-        User user = new User(1L, "User x", "x @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(1L, "User x", "x@example.com", "pwd", "USER", LocalDateTime.now());
         ActivityType type = new ActivityType(2L, "Bus", null, "km", LocalDateTime.now());
         ActivityLog log = new ActivityLog(1L, type, user, 10.0,
                 LocalDate.now(), LocalDateTime.now(), 20.0);
@@ -410,7 +408,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 50, groups = "manyToMany")
     public void t50_userMultipleLogs_association() {
-        User user = new User(1L, "MultiUser", "multi @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(1L, "MultiUser", "multi@example.com", "pwd", "USER", LocalDateTime.now());
         ActivityLog log1 = new ActivityLog(1L, null, user, 5.0, LocalDate.now(), LocalDateTime.now(), 2.0);
         ActivityLog log2 = new ActivityLog(2L, null, user, 10.0, LocalDate.now(), LocalDateTime.now(), 4.0);
 
@@ -430,7 +428,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 52, groups = "manyToMany")
     public void t52_userTypesManyRelationConceptual() {
-        User user = new User(1L, "U", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(1L, "U", "u@example.com", "pwd", "USER", LocalDateTime.now());
         ActivityType type1 = new ActivityType(1L, "Car", null, "km", LocalDateTime.now());
         ActivityType type2 = new ActivityType(2L, "Bus", null, "km", LocalDateTime.now());
 
@@ -446,8 +444,8 @@ public class CarbonFootprintEstimatorTest {
     @Test(priority = 53, groups = "manyToMany")
     public void t53_sameTypeDifferentUsers_association() {
         ActivityType type = new ActivityType(1L, "Car", null, "km", LocalDateTime.now());
-        User u1 = new User(1L, "U1", "u1 @example.com", "pwd", "USER", LocalDateTime.now());
-        User u2 = new User(2L, "U2", "u2 @example.com", "pwd", "USER", LocalDateTime.now());
+        User u1 = new User(1L, "U1", "u1@example.com", "pwd", "USER", LocalDateTime.now());
+        User u2 = new User(2L, "U2", "u2@example.com", "pwd", "USER", LocalDateTime.now());
 
         ActivityLog l1 = new ActivityLog(1L, type, u1, 1.0, LocalDate.now(), LocalDateTime.now(), 0.2);
         ActivityLog l2 = new ActivityLog(2L, type, u2, 2.0, LocalDate.now(), LocalDateTime.now(), 0.4);
@@ -459,8 +457,8 @@ public class CarbonFootprintEstimatorTest {
     @Test(priority = 54, groups = "manyToMany")
     public void t54_manyToManyConceptTotalUsersForType() {
         ActivityType type = new ActivityType(1L, "Car", null, "km", LocalDateTime.now());
-        User u1 = new User(1L, "U1", "u1 @example.com", "pwd", "USER", LocalDateTime.now());
-        User u2 = new User(2L, "U2", "u2 @example.com", "pwd", "USER", LocalDateTime.now());
+        User u1 = new User(1L, "U1", "u1@example.com", "pwd", "USER", LocalDateTime.now());
+        User u2 = new User(2L, "U2", "u2@example.com", "pwd", "USER", LocalDateTime.now());
 
         ActivityLog l1 = new ActivityLog(1L, type, u1, 1.0, LocalDate.now(), LocalDateTime.now(), 0.2);
         ActivityLog l2 = new ActivityLog(2L, type, u2, 2.0, LocalDate.now(), LocalDateTime.now(), 0.4);
@@ -479,57 +477,57 @@ public class CarbonFootprintEstimatorTest {
     @Test(priority = 60, groups = "security")
     public void t60_generateJwtToken_containsSubject() {
         Map<String, Object> claims = Map.of("key", "value");
-        String token = jwtUtil.generateToken(claims, "subject @example.com");
+        String token = jwtUtil.generateToken(claims, "subject@example.com");
         String username = jwtUtil.extractUsername(token);
-        Assert.assertEquals(username, "subject @example.com");
+        Assert.assertEquals(username, "subject@example.com");
     }
 
     @Test(priority = 61, groups = "security")
     public void t61_generateTokenForUser_containsUserIdEmailRole() {
-        User user = new User(10L, "T", "token @example.com", "pwd", "ADMIN", LocalDateTime.now());
+        User user = new User(10L, "T", "token@example.com", "pwd", "ADMIN", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
 
         String username = jwtUtil.extractUsername(token);
         String role = jwtUtil.extractRole(token);
         Long userId = jwtUtil.extractUserId(token);
 
-        Assert.assertEquals(username, "token @example.com");
+        Assert.assertEquals(username, "token@example.com");
         Assert.assertEquals(role, "ADMIN");
         Assert.assertEquals(userId, Long.valueOf(10L));
     }
 
     @Test(priority = 62, groups = "security")
     public void t62_tokenValidation_success() {
-        User user = new User(11L, "U", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(11L, "U", "u@example.com", "pwd", "USER", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
-        boolean valid = jwtUtil.isTokenValid(token, "u @example.com");
+        boolean valid = jwtUtil.isTokenValid(token, "u@example.com");
         Assert.assertTrue(valid);
     }
 
     @Test(priority = 63, groups = "security")
     public void t63_tokenValidation_wrongUser() {
-        User user = new User(11L, "U", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(11L, "U", "u@example.com", "pwd", "USER", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
-        boolean valid = jwtUtil.isTokenValid(token, "v @example.com");
+        boolean valid = jwtUtil.isTokenValid(token, "v@example.com");
         Assert.assertFalse(valid);
     }
 
     @Test(priority = 64, groups = "security")
     public void t64_customUserDetailsService_loadByEmail_success() {
-        User user = new User(5L, "User", "user @example.com", "pwd", "ADMIN", LocalDateTime.now());
-        when(userRepository.findByEmail("user @example.com")).thenReturn(Optional.of(user));
+        User user = new User(5L, "User", "user@example.com", "pwd", "ADMIN", LocalDateTime.now());
+        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
 
-        UserDetails details = userDetailsService.loadUserByUsername("user @example.com");
-        Assert.assertEquals(details.getUsername(), "user @example.com");
+        UserDetails details = userDetailsService.loadUserByUsername("user@example.com");
+        Assert.assertEquals(details.getUsername(), "user@example.com");
         Assert.assertTrue(details.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
     }
 
     @Test(priority = 65, groups = "security")
     public void t65_customUserDetailsService_userNotFound() {
-        when(userRepository.findByEmail("no @example.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("no@example.com")).thenReturn(Optional.empty());
         try {
-            userDetailsService.loadUserByUsername("no @example.com");
+            userDetailsService.loadUserByUsername("no@example.com");
             Assert.fail("Expected UsernameNotFoundException");
         } catch (Exception ex) {
             Assert.assertTrue(ex.getMessage().contains("User not found"));
@@ -538,8 +536,8 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 66, groups = "security")
     public void t66_authenticationManager_simulation_success() {
-        LoginRequest request = new LoginRequest("auth @example.com", "password123");
-        UsernamePasswordAuthenticationToken token = 
+        LoginRequest request = new LoginRequest("auth@example.com", "password123");
+        UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(token);
@@ -550,27 +548,27 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 67, groups = "security")
     public void t67_roleBasedAccessConcept_adminCanManageCategories() {
-        User admin = new User(1L, "Admin", "admin @example.com", "pwd", "ADMIN", LocalDateTime.now());
+        User admin = new User(1L, "Admin", "admin@example.com", "pwd", "ADMIN", LocalDateTime.now());
         Assert.assertEquals(admin.getRole(), "ADMIN");
     }
 
     @Test(priority = 68, groups = "security")
     public void t68_roleBasedAccessConcept_userCannotBeAdmin() {
-        User normal = new User(2L, "User", "user @example.com", "pwd", "USER", LocalDateTime.now());
+        User normal = new User(2L, "User", "user@example.com", "pwd", "USER", LocalDateTime.now());
         Assert.assertNotEquals(normal.getRole(), "ADMIN");
     }
 
     @Test(priority = 69, groups = "security")
     public void t69_tokenIncludesEmailClaim() {
-        User user = new User(15L, "E", "emailclaim @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(15L, "E", "emailclaim@example.com", "pwd", "USER", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
         String email = (String) jwtUtil.parseToken(token).getPayload().get("email");
-        Assert.assertEquals(email, "emailclaim @example.com");
+        Assert.assertEquals(email, "emailclaim@example.com");
     }
 
     @Test(priority = 70, groups = "security")
     public void t70_tokenIncludesRoleClaim() {
-        User user = new User(16L, "R", "roleclaim @example.com", "pwd", "ADMIN", LocalDateTime.now());
+        User user = new User(16L, "R", "roleclaim@example.com", "pwd", "ADMIN", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
         String role = (String) jwtUtil.parseToken(token).getPayload().get("role");
         Assert.assertEquals(role, "ADMIN");
@@ -578,7 +576,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 71, groups = "security")
     public void t71_tokenIncludesUserIdClaim() {
-        User user = new User(17L, "I", "idclaim @example.com", "pwd", "USER", LocalDateTime.now());
+        User user = new User(17L, "I", "idclaim@example.com", "pwd", "USER", LocalDateTime.now());
         String token = jwtUtil.generateTokenForUser(user);
         Object id = jwtUtil.parseToken(token).getPayload().get("userId");
         Assert.assertNotNull(id);
@@ -597,8 +595,8 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 73, groups = "security")
     public void t73_passwordMinLengthValidation() {
-        User user = new User(null, "ShortPwd", "shortpwd @example.com", "short", "USER", LocalDateTime.now());
-        when(userRepository.existsByEmail("shortpwd @example.com")).thenReturn(false);
+        User user = new User(null, "ShortPwd", "shortpwd@example.com", "short", "USER", LocalDateTime.now());
+        when(userRepository.existsByEmail("shortpwd@example.com")).thenReturn(false);
 
         try {
             userService.registerUser(user);
@@ -660,7 +658,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 84, groups = "hql")
     public void t84_logActivity_calculatesEmissionCorrectly() {
-        User u = new User(1L, "User", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User u = new User(1L, "User", "u@example.com", "pwd", "USER", LocalDateTime.now());
         ActivityType type = new ActivityType(2L, "Car", null, "km", LocalDateTime.now());
         EmissionFactor ef = new EmissionFactor(5L, type, 0.5, "km", LocalDateTime.now());
 
@@ -679,7 +677,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 85, groups = "hql")
     public void t85_logActivity_futureDateValidation() {
-        User u = new User(1L, "User", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User u = new User(1L, "User", "u@example.com", "pwd", "USER", LocalDateTime.now());
         when(userRepository.findById(1L)).thenReturn(Optional.of(u));
 
         ActivityLog log = new ActivityLog();
@@ -696,7 +694,7 @@ public class CarbonFootprintEstimatorTest {
 
     @Test(priority = 86, groups = "hql")
     public void t86_logActivity_requiresFactor() {
-        User u = new User(1L, "User", "u @example.com", "pwd", "USER", LocalDateTime.now());
+        User u = new User(1L, "User", "u@example.com", "pwd", "USER", LocalDateTime.now());
         ActivityType type = new ActivityType(2L, "Car", null, "km", LocalDateTime.now());
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(u));
