@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
@@ -17,12 +18,16 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
 
         return new OpenAPI()
-                // ❗ DO NOT define servers() in college portals
-                // Swagger will use the same origin automatically
 
+                // ✅ FORCE HTTPS (THIS FIXES "Failed to fetch")
+                .addServersItem(new Server().url("https://9301.408procr.amypo.ai/"))
+
+                // ✅ Enable Authorize button
                 .addSecurityItem(
                         new SecurityRequirement().addList(SECURITY_SCHEME_NAME)
                 )
+
+                // ✅ JWT Bearer config
                 .components(
                         new Components()
                                 .addSecuritySchemes(
