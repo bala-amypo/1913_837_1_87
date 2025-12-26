@@ -22,7 +22,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 // ✅ REQUIRED for hosted / proxy environment
                 .servers(List.of(
-                        new Server().url("https://9223.pro604cr.amypo.ai")
+                        new Server().url("https://9301.408procr.amypo.ai/")
                 ))
 
                 // ✅ Enables Authorize button
