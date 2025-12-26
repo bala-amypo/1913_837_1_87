@@ -1,25 +1,46 @@
 package com.example.demo.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import java.util.List;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+
 @Configuration
-@OpenAPIDefinition(
-        info = @Info(
-                title = "Carbon Footprint Estimator API",
-                version = "1.0"
-        ),
-        security = @SecurityRequirement(name = "bearerAuth")
-)
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class SwaggerConfig {
+
+    public static final String SECURITY_SCHEME_NAME = "bearerAuth";
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+
+        return new OpenAPI()
+                // ✅ Server configuration (you already had this)
+                .servers(List.of(
+                        new Server().url("https://9301.408procr.amypo.ai/")
+                ))
+
+                // ✅ THIS enables the Authorize button
+                .addSecurityItem(
+                        new SecurityRequirement().addList(SECURITY_SCHEME_NAME)
+                )
+
+                // ✅ JWT Bearer definition
+                .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        SECURITY_SCHEME_NAME,
+                                        new SecurityScheme()
+                                                .name("Authorization")
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                );
+    }
 }
