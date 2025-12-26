@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,16 +20,17 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
 
         return new OpenAPI()
+                // ✅ Server configuration (you already had this)
+                .servers(List.of(
+                        new Server().url("https://9223.pro604cr.amypo.ai/")
+                ))
 
-                // ✅ FORCE HTTPS (THIS FIXES "Failed to fetch")
-                .addServersItem(new Server().url("https://9301.408procr.amypo.ai/"))
-
-                // ✅ Enable Authorize button
+                // ✅ THIS enables the Authorize button
                 .addSecurityItem(
                         new SecurityRequirement().addList(SECURITY_SCHEME_NAME)
                 )
 
-                // ✅ JWT Bearer config
+                // ✅ JWT Bearer definition
                 .components(
                         new Components()
                                 .addSecuritySchemes(
