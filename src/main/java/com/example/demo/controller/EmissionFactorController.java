@@ -1,15 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.EmissionFactor;
+import com.example.demo.entity.EmissionFactor;
 import com.example.demo.service.EmissionFactorService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/factors")
-@Tag(name = "Emission Factors")
 public class EmissionFactorController {
 
     private final EmissionFactorService factorService;
@@ -18,24 +15,23 @@ public class EmissionFactorController {
         this.factorService = factorService;
     }
 
-    @PostMapping("/{activityTypeId}")
-    public EmissionFactor create(@PathVariable Long activityTypeId,
-                                 @RequestBody EmissionFactor factor) {
-        return factorService.createFactor(activityTypeId, factor);
+    @PostMapping("/type/{activityTypeId}")
+    public ResponseEntity<?> createFactor(@PathVariable Long activityTypeId, @RequestBody EmissionFactor factor) {
+        return ResponseEntity.ok(factorService.createFactor(activityTypeId, factor));
     }
 
     @GetMapping("/{id}")
-    public EmissionFactor getById(@PathVariable Long id) {
-        return factorService.getFactor(id);
+    public ResponseEntity<?> getFactor(@PathVariable Long id) {
+        return ResponseEntity.ok(factorService.getFactor(id));
     }
 
     @GetMapping("/type/{activityTypeId}")
-    public EmissionFactor getByType(@PathVariable Long activityTypeId) {
-        return factorService.getFactorByType(activityTypeId);
+    public ResponseEntity<?> getFactorByType(@PathVariable Long activityTypeId) {
+        return ResponseEntity.ok(factorService.getFactorByType(activityTypeId));
     }
 
     @GetMapping
-    public List<EmissionFactor> getAll() {
-        return factorService.getAllFactors();
+    public ResponseEntity<?> getAllFactors() {
+        return ResponseEntity.ok(factorService.getAllFactors());
     }
 }
