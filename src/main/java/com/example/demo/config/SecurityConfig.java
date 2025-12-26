@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,36 +17,47 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+            // ✅ REQUIRED for REST APIs
             .csrf(csrf -> csrf.disable())
+
+            // ✅ REQUIRED to avoid session-based security
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            // ✅ Disable default login mechanisms
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+
             .authorizeHttpRequests(auth -> auth
 
-                // Swagger
+                // ✅ Swagger
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
 
-                // Auth APIs
-                .requestMatchers("/auth/register", "/auth/login").permitAll()
+                // ✅ AUTH ENDPOINTS (THIS IS THE KEY)
+                .requestMatchers("/auth/**").permitAll()
 
-                // Secure everything else
+                // 🔐 Everything else protected
                 .anyRequest().authenticated()
             );
 
         return http.build();
     }
 
-    // ✅ REQUIRED for password hashing
+    // Password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ REQUIRED for login authentication
+    // Authentication manager for login
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
