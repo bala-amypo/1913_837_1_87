@@ -9,6 +9,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -17,28 +22,31 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // 🔴 MUST be disabled for REST + Swagger POST requests
+            // 🔴 REQUIRED for Swagger + REST APIs
             .csrf(csrf -> csrf.disable())
 
-            // 🔴 REST API → no sessions
+            // 🔴 REQUIRED so Swagger browser requests are allowed
+            .cors(cors -> {})
+
+            // 🔴 JWT → no sessions
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
-            // 🔴 Disable default login mechanisms
+            // 🔴 Disable default Spring Security login methods
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ Swagger & OpenAPI (always public)
+                // ✅ Swagger endpoints
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
 
-                // ✅ AUTH APIs MUST be public (THIS FIXES 403)
+                // ✅ Public auth APIs (THIS FIXES 403)
                 .requestMatchers("/auth/**").permitAll()
 
                 // 🔐 Everything else requires JWT
@@ -48,16 +56,32 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ REQUIRED for password hashing
+    // ✅ Password encoder (REQUIRED)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ REQUIRED for AuthenticationManager injection
+    // ✅ AuthenticationManager (REQUIRED for login)
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-}
+
+    // ✅ CORS configuration (THIS FIXES "Failed to fetch")
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return s
