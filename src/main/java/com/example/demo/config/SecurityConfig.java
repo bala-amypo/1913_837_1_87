@@ -2,6 +2,8 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,19 +26,26 @@ public class SecurityConfig {
                     "/v3/api-docs/**"
                 ).permitAll()
 
-                // Auth endpoints
+                // Auth APIs
                 .requestMatchers("/auth/register", "/auth/login").permitAll()
 
-                // Everything else secured
+                // Secure everything else
                 .anyRequest().authenticated()
             );
 
         return http.build();
     }
 
-    // ✅ THIS IS WHAT WAS MISSING
+    // ✅ REQUIRED for password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // ✅ REQUIRED for login authentication
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
